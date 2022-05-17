@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.peopleWebmaster.mapper.PeopleWebmasterMapper">
+    <resultMap type="cn.px.sys.modular.peopleWebmaster.entity.PeopleWebmasterEntity" id="PeopleWebmasterMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="enable" column="enable" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="photo" column="photo" jdbcType="VARCHAR"/>
+        <result property="organization" column="organization" jdbcType="INTEGER"/>
+        <result property="isWebmaster" column="is_webmaster" jdbcType="INTEGER"/>
+        <result property="isVicechief" column="is_vicechief" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="selectPeopleWebmasterVo">
+        select id,
+               enable,
+               create_by,
+               create_time as "createTime",
+               update_by,
+               update_time,
+               remark,
+               sort,
+               name,
+               photo,
+               organization,
+               is_webmaster as "isWebmaster",
+               is_vicechief as "isVicechief"
+        from people_webmaster
+    </sql>
+
+    <select id="selectIdPage" resultType="java.lang.Long">
+        SELECT id FROM people_webmaster
+        <where>
+            enable = 1
+            <if test="cm.id != null">
+                and id = #{cm.id}
+            </if>
+            <if test="cm.enable != null">
+                and enable = #{cm.enable}
+            </if>
+            <if test="cm.createBy != null">
+                and create_by = #{cm.createBy}
+            </if>
+            <if test="cm.createTime != null">
+                and create_time = #{cm.createTime}
+            </if>
+            <if test="cm.updateBy != null">
+                and update_by = #{cm.updateBy}
+            </if>
+            <if test="cm.updateTime != null">
+                and update_time = #{cm.updateTime}
+            </if>
+            <if test="cm.remark != null">
+                and remark = #{cm.remark}
+            </if>
+            <if test="cm.sort != null">
+                and sort = #{cm.sort}
+            </if>
+            <if test="cm.name != null and cm.name != ''">
+                and name = #{cm.name}
+            </if>
+            <if test="cm.photo != null and cm.photo != ''">
+                and photo = #{cm.photo}
+            </if>
+            <if test="cm.organization != null">
+                and organization = #{cm.organization}
+            </if>
+            <if test="cm.isWebmaster != null">
+                and is_webmaster = #{cm.isWebmaster}
+            </if>
+            <if test="cm.isVicechief != null">
+                and is_vicechief = #{cm.isVicechief}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPeopleWebmasterVo" resultType="map">
+        <include refid="selectPeopleWebmasterVo"/>
+        <where>
+            enable =1
+            <if test="name != null and name != ''">
+                and name like CONCAT('%',#{name},'%')
+            </if>
+            <if test="organization != null">
+                and organization = #{cm.organization}
+            </if>
+        </where>
+    </select>
+
+    <select id="getWebmasterVoList" resultType="cn.px.sys.modular.peopleWebmaster.vo.WebmasterVo">
+        <include refid="selectPeopleWebmasterVo"/>
+        where enable=1 and organization= #{organization}
+        order by is_webmaster ASC ,is_vicechief ASC,create_time ASC
+    </select>
+</mapper>
+

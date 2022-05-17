@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.unitSecondClass.mapper.UnitSecondClassMapper">
+
+    <resultMap type="cn.px.sys.modular.unitSecondClass.entity.UnitSecondClassEntity" id="UnitSecondClassMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="enable" column="enable" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="OTHER"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="firstId" column="first_id" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="selectUnitSecondClassVo">
+        select id, enable, integral,create_by, create_time, update_by, update_time, remark, sort, name,first_id from unit_second_class
+    </sql>
+
+    <select id="selectIdPage" resultType="java.lang.Long">
+        SELECT id FROM unit_second_class
+        <where>
+            enable = 1
+            <if test="cm.id != null">
+                and id = #{cm.id}
+            </if>
+            <if test="cm.enable != null">
+                and enable = #{cm.enable}
+            </if>
+            <if test="cm.createBy != null">
+                and create_by = #{cm.createBy}
+            </if>
+            <if test="cm.createTime != null">
+                and create_time = #{cm.createTime}
+            </if>
+            <if test="cm.updateBy != null">
+                and update_by = #{cm.updateBy}
+            </if>
+            <if test="cm.updateTime != null">
+                and update_time = #{cm.updateTime}
+            </if>
+            <if test="cm.remark != null">
+                and remark = #{cm.remark}
+            </if>
+            <if test="cm.sort != null">
+                and sort = #{cm.sort}
+            </if>
+            <if test="cm.name != null and cm.name != ''">
+                and name = #{cm.name}
+            </if>
+            <if test="cm.firstId != null and cm.firstId != ''">
+                and first_id = #{cm.firstId}
+            </if>
+
+        </where>
+    </select>
+
+
+    <select id="selectList" resultType="map">
+        SELECT a.*,b.name as bname,cc.name as cname from
+        unit_second_class a
+        LEFT JOIN unit_first_class b  on a.first_id = b.id
+        LEFT JOIN community_class cc on cc.id= a.cid
+        <where>
+            a.enable = 1
+        <if test="name != null and name != ''">
+            and a.name like CONCAT('%',#{name},'%')
+        </if>
+        </where>
+        order BY a.create_time desc
+    </select>
+
+
+    <select id="selectListByid" resultType="map">
+        SELECT id,name from unit_second_class
+
+        <where>
+            <if test="id !=null and id != '' ">
+                and first_id = #{id} and enable = 1
+            </if>
+        </where>
+    </select>
+
+    <select id="getList" resultType="cn.px.sys.modular.unitSecondClass.entity.UnitSecondClassEntity">
+        select * from unit_second_class where enable = 1
+    </select>
+
+    <select id="getListByCid" resultType="cn.px.sys.modular.unitSecondClass.entity.UnitSecondClassEntity">
+        select * from unit_second_class where enable = 1 and cid = #{cid}
+    </select>
+
+    <select id="getListByCid1" resultType="cn.px.sys.modular.unitSecondClass.entity.UnitSecondClassEntity">
+        select * from unit_second_class
+         <where>
+             enable = 1
+             <if test="cid != null">
+                 and cid = #{cid}
+             </if>
+         </where>
+    </select>
+
+    <select id="getUnitById" resultType="cn.px.sys.modular.unitSecondClass.entity.UnitSecondClassEntity">
+        select  * from unit_second_class where enable = 1 and id = #{id}
+    </select>
+</mapper>

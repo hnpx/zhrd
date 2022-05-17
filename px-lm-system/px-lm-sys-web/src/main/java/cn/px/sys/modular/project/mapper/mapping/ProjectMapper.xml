@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.project.mapper.ProjectMapper">
+
+    <resultMap type="cn.px.sys.modular.project.entity.ProjectEntity" id="ProjectMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="enable" column="enable" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="OTHER"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="companyClass" column="company_class" jdbcType="INTEGER"/>
+        <result property="headFigure" column="head_figure" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="startTime" column="start_time" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+        <result property="contactPerson" column="contact_person" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="integral" column="integral" jdbcType="INTEGER"/>
+        <result property="personnelType" column="personnel_type" jdbcType="INTEGER"/>
+        <result property="signIn" column="sign_in" jdbcType="INTEGER"/>
+        <result property="signQr" column="sign_qr" jdbcType="VARCHAR"/>
+        <result property="signoutQr" column="signout_qr" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="selectProjectVo">
+        select id, enable, create_by as "createBy",
+        create_time as "createTime", update_by as "updateBy",
+        update_time as "updateTime", remark, sort, name, company_class as "companyClass",
+         head_figure as "headFigure", address, start_time as "startTime", end_time as "endTime",
+         contact_person as "contactPerson", phone, integral, personnel_type as "personnelType",belonging_unit as "belongingUnit",money,
+         sign_in as "signIn" from project
+    </sql>
+
+    <select id="selectIdPage" resultType="java.lang.Long">
+        SELECT id FROM project
+        <where>
+            enable = 1
+            <if test="cm.id != null">
+                and id = #{cm.id}
+            </if>
+            <if test="cm.enable != null">
+                and enable = #{cm.enable}
+            </if>
+            <if test="cm.createBy != null">
+                and create_by = #{cm.createBy}
+            </if>
+            <if test="cm.createTime != null">
+                and create_time = #{cm.createTime}
+            </if>
+            <if test="cm.updateBy != null">
+                and update_by = #{cm.updateBy}
+            </if>
+            <if test="cm.updateTime != null">
+                and update_time = #{cm.updateTime}
+            </if>
+            <if test="cm.remark != null">
+                and remark = #{cm.remark}
+            </if>
+            <if test="cm.sort != null">
+                and sort = #{cm.sort}
+            </if>
+            <if test="cm.name != null and cm.name != ''">
+                and name  like CONCAT('%',#{cm.name},'%')
+            </if>
+            <if test="cm.companyClass != null">
+                and company_class = #{cm.companyClass}
+            </if>
+            <if test="cm.headFigure != null and cm.headFigure != ''">
+                and head_figure = #{cm.headFigure}
+            </if>
+            <if test="cm.address != null and cm.address != ''">
+                and address = #{cm.address}
+            </if>
+            <if test="cm.startTime != null">
+                and start_time = #{cm.startTime}
+            </if>
+            <if test="cm.endTime != null">
+                and end_time = #{cm.endTime}
+            </if>
+            <if test="cm.contactPerson != null and cm.contactPerson != ''">
+                and contact_person = #{cm.contactPerson}
+            </if>
+            <if test="cm.phone != null and cm.phone != ''">
+                and phone = #{cm.phone}
+            </if>
+            <if test="cm.integral != null">
+                and integral = #{cm.integral}
+            </if>
+            <if test="cm.personnelType != null">
+                and personnel_type = #{cm.personnelType}
+            </if>
+            <if test="cm.signIn != null">
+                and sign_in = #{cm.signIn}
+            </if>
+            <if test="cm.signQr != null and cm.signQr != ''">
+                and sign_qr = #{cm.signQr}
+            </if>
+            <if test="cm.signoutQr != null and cm.signoutQr != ''">
+                and signout_qr = #{cm.signoutQr}
+            </if>
+            <if test="cm.money != null and cm.money != ''">
+                and money = #{cm.money}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getListPage" resultType="map">
+    <include refid="selectProjectVo"/>
+    <where>
+        enable = 1
+        <if test="name != null and name != ''">
+            and name  like CONCAT('%',#{name},'%')
+        </if>
+        <if test="cid != null">
+            and belonging_community = #{cid}
+        </if>
+        <if test="contactPerson != null and contactPerson != ''">
+            and contact_person  like CONCAT('%',#{contactPerson},'%')
+        </if>
+        <if test="phone != null and phone != ''">
+            and phone  like CONCAT('%',#{phone},'%')
+        </if>
+        <if test="timeStatus==1">
+            and NOW() &lt; start_time
+        </if>
+        <if test="timeStatus==2">
+            and NOW() &gt; start_time
+            and NOW() &lt; end_time
+        </if>
+        <if test="timeStatus==3">
+            and NOW() &gt; end_time
+        </if>
+        <if test="month != null and month != ''">
+            and DATE_FORMAT(start_time, "%Y-%m") = #{month}
+        </if>
+    </where>
+    ORDER BY sort ASC, update_time DESC
+    </select>
+
+    <select id="getListPage1" resultType="map">
+        <include refid="selectProjectVo"/>
+        <where>
+            enable = 1
+            <if test="cid != null">
+                and company_class = #{cid}
+            </if>
+            <if test="timeStatus==1">
+                and NOW() &lt; start_time
+            </if>
+            <if test="timeStatus==2">
+                and NOW() &gt; start_time
+                and NOW() &lt; end_time
+            </if>
+            <if test="timeStatus==3">
+                and NOW() &gt; end_time
+            </if>
+
+        </where>
+        ORDER BY sort ASC, update_time DESC
+    </select>
+
+    <select id="getListPage2" resultType="map">
+        <include refid="selectProjectVo"/>
+        <where>
+            enable = 1
+            <if test="cid != null">
+                and company_class = #{cid}
+            </if>
+            <if test="timeStatus==1">
+                and NOW() &lt; end_time
+            </if>
+
+        </where>
+        ORDER BY sort ASC, update_time DESC
+    </select>
+
+    <select id="getProVo" resultType="cn.px.sys.modular.project.vo.ProVo">
+        select id,name,head_figure as "headFigure",update_time as "createTime" from project
+        where enable = 1
+         and #{date}  between start_time and end_time
+        or #{date} &lt; start_time
+        ORDER BY update_time DESC
+        limit 0,4
+    </select>
+
+
+    <select id="getList" resultType="cn.px.sys.modular.project.entity.ProjectEntity">
+        <include refid="selectProjectVo"/>
+         where enable = 1 and sign_in = 2 and NOW() > end_time
+    </select>
+
+    <select id="getCountByall" resultType="int">
+        select count(1) from project where enable=1
+    </select>
+</mapper>

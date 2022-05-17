@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.peopleAppRecord.mapper.PeopleAppRecordMapper">
+    <resultMap type="cn.px.sys.modular.peopleAppRecord.entity.PeopleAppRecordEntity" id="PeopleAppRecordMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="enable" column="enable" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="crowdId" column="crowd_id" jdbcType="INTEGER"/>
+        <result property="congressId" column="congress_id" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="appTime" column="app_time" jdbcType="TIMESTAMP"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="instructions" column="instructions" jdbcType="VARCHAR"/>
+        <result property="url" column="url" jdbcType="VARCHAR"/>
+        <result property="isToview" column="is_toview" jdbcType="INTEGER"/>
+        <result property="roomNumber" column="room_number" jdbcType="VARCHAR"/>
+        <result property="isDelete" column="is_delete" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="selectPeopleAppRecordVo">
+        select id,
+               enable,
+               create_by,
+               create_time as "createTime",
+               update_by,
+               update_time,
+               remark,
+               sort,
+               crowd_id as "crowdId",
+               congress_id as "congressId",
+               status,
+               app_time as "appTime",
+               content,
+               instructions,
+               url,
+               is_toview as "isToview",
+               room_number as roomNumber,
+               is_delete as isDelete
+        from people_app_record
+    </sql>
+
+    <select id="selectIdPage" resultType="java.lang.Long">
+        SELECT id FROM people_app_record
+        <where>
+            enable = 1
+            <if test="cm.id != null">
+                and id = #{cm.id}
+            </if>
+            <if test="cm.enable != null">
+                and enable = #{cm.enable}
+            </if>
+            <if test="cm.createBy != null">
+                and create_by = #{cm.createBy}
+            </if>
+            <if test="cm.createTime != null">
+                and create_time = #{cm.createTime}
+            </if>
+            <if test="cm.updateBy != null">
+                and update_by = #{cm.updateBy}
+            </if>
+            <if test="cm.updateTime != null">
+                and update_time = #{cm.updateTime}
+            </if>
+            <if test="cm.remark != null">
+                and remark = #{cm.remark}
+            </if>
+            <if test="cm.sort != null">
+                and sort = #{cm.sort}
+            </if>
+            <if test="cm.crowdId != null">
+                and crowd_id = #{cm.crowdId}
+            </if>
+            <if test="cm.congressId != null">
+                and congress_id = #{cm.congressId}
+            </if>
+            <if test="cm.status != null">
+                and status = #{cm.status}
+            </if>
+            <if test="cm.appTime != null">
+                and app_time = #{cm.appTime}
+            </if>
+            <if test="cm.content != null and cm.content != ''">
+                and content = #{cm.content}
+            </if>
+            <if test="cm.instructions != null and cm.instructions != ''">
+                and instructions = #{cm.instructions}
+            </if>
+            <if test="cm.url != null and cm.url != ''">
+                and url = #{cm.url}
+            </if>
+            <if test="cm.isToview != null">
+                and is_toview = #{cm.isToview}
+            </if>
+            <if test="cm.roomNumber != null and cm.roomNumber != ''">
+                and room_number = #{cm.roomNumber}
+            </if>
+            <if test="cm.isDelete != null">
+                and is_delete = #{cm.isDelete}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAppRecordList" resultType="cn.px.sys.modular.peopleAppRecord.entity.PeopleAppRecordEntity">
+        <include refid="selectPeopleAppRecordVo"/>
+      <where>
+          enable=1
+          <if test="crowdId != null">
+              and crowd_id =#{crowdId}
+          </if>
+          <if test="congressId != null">
+              and congress_id =#{congressId}
+          </if>
+          <if test="type==1">
+            and status=2
+
+          </if>
+          <if test="type==2 and crowdId != null">
+              and status=4
+          </if>
+          <if test="type==2 and congressId != null">
+              and status=1
+          </if>
+          <if test="type==3">
+              and status=3
+          </if>
+          <if test="type==4">
+              and status=4
+          </if>
+      </where>
+        ORDER BY app_time ASC
+
+    </select>
+
+    <select id="getAppNotice" resultType="cn.px.sys.modular.peopleAppRecord.entity.PeopleAppRecordEntity">
+        <include refid="selectPeopleAppRecordVo"/>
+        <where>
+            enable=1 and is_toview = 1
+            <if test="crowdId != null">
+                and crowd_id =#{crowdId} and (status=2 or status=3)
+            </if>
+            <if test="congressId != null">
+                and congress_id =#{congressId} and status = 1
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="getAppNoticeNum" resultType="int">
+      select IFNULL(count(1) ,0) as "count" from people_app_record
+        <where>
+            enable=1 and is_toview = 1
+            <if test="crowdId != null">
+                and crowd_id =#{crowdId} and (status=2 or status=3)
+            </if>
+            <if test="congressId != null">
+                and congress_id =#{congressId} and status = 1
+            </if>
+        </where>
+    </select>
+
+    <select id="getAppRecordListBystatus" resultType="cn.px.sys.modular.peopleAppRecord.entity.PeopleAppRecordEntity">
+        <include refid="selectPeopleAppRecordVo"/>
+        where enable=1 and status=4
+    </select>
+
+    <select id="getCount" resultType="int">
+        select count(1) from people_app_record
+        <where>
+            enable =1 and congress_id =#{congressId}
+            <if test="status != null">
+                and status =#{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="getStatusList" resultType="map">
+        <include refid="selectPeopleAppRecordVo"/>
+        <where>
+            enable =1 and congress_id =#{congressId}
+            <if test="status != null">
+                and status =#{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAppByRoomNumber" resultType="cn.px.sys.modular.peopleAppRecord.entity.PeopleAppRecordEntity">
+        <include refid="selectPeopleAppRecordVo"/>
+        where enable=1 and room_number = #{roomNumber}
+    </select>
+</mapper>
+

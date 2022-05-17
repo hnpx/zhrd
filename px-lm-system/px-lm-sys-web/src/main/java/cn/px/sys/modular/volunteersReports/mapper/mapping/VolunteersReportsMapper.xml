@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.volunteersReports.mapper.VolunteersReportsMapper">
+
+    <resultMap type="cn.px.sys.modular.volunteersReports.entity.VolunteersReportsEntity" id="VolunteersReportsMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="enable" column="enable" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="OTHER"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="userSex" column="user_sex" jdbcType="VARCHAR"/>
+        <result property="userIdcard" column="user_idcard" jdbcType="VARCHAR"/>
+        <result property="userPhone" column="user_phone" jdbcType="VARCHAR"/>
+        <result property="communityClass" column="community_class" jdbcType="VARCHAR"/>
+        <result property="brigadeClass" column="brigade_class" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="volunteersClass" column="volunteers_class" jdbcType="INTEGER"/>
+        <result property="role" column="role" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="selectVolunteersReportsVo">
+        select id, enable, create_by, create_time, volunteers_class,update_by,user_id, update_time, remark, sort, user_name, user_sex, user_idcard, user_phone, community_class, brigade_class,role from volunteers_reports
+    </sql>
+
+    <select id="selectIdPage" resultType="java.lang.Long">
+        SELECT id FROM volunteers_reports
+        <where>
+            enable = 1
+            <if test="cm.id != null">
+                and id = #{cm.id}
+            </if>
+            <if test="cm.enable != null">
+                and enable = #{cm.enable}
+            </if>
+            <if test="cm.createBy != null">
+                and create_by = #{cm.createBy}
+            </if>
+            <if test="cm.createTime != null">
+                and create_time = #{cm.createTime}
+            </if>
+            <if test="cm.updateBy != null">
+                and update_by = #{cm.updateBy}
+            </if>
+            <if test="cm.updateTime != null">
+                and update_time = #{cm.updateTime}
+            </if>
+            <if test="cm.remark != null">
+                and remark = #{cm.remark}
+            </if>
+            <if test="cm.sort != null">
+                and sort = #{cm.sort}
+            </if>
+            <if test="cm.userName != null and cm.userName != ''">
+                and user_name = #{cm.userName}
+            </if>
+            <if test="cm.userSex != null and cm.userSex != ''">
+                and user_sex = #{cm.userSex}
+            </if>
+            <if test="cm.userIdcard != null and cm.userIdcard != ''">
+                and user_idcard = #{cm.userIdcard}
+            </if>
+            <if test="cm.userPhone != null and cm.userPhone != ''">
+                and user_phone = #{cm.userPhone}
+            </if>
+            <if test="cm.communityClass != null and cm.communityClass != ''">
+                and community_class = #{cm.communityClass}
+            </if>
+            <if test="cm.brigadeClass != null and cm.brigadeClass != ''">
+                and brigade_class = #{cm.brigadeClass}
+            </if>
+            <if test="cm.userId != null and cm.userId != ''">
+                and user_id = #{cm.userId}
+            </if>
+            <if test="cm.volunteersClass != null and cm.volunteersClass != ''">
+                and volunteers_class = #{cm.volunteersClass}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectListPage" resultType="map">
+        SELECT
+        a.*,
+        b.name as communityName,
+        us.remaining_points as integral
+        from volunteers_reports a
+        LEFT JOIN community_class b on a.community_class = b.id
+        left join all_user us on a.user_id = us.id
+        <where>
+            <if test="entity.brigadeClass!=null  and entity.brigadeClass !='' ">
+              and   a.brigade_class like concat(concat('%',#{entity.brigadeClass},'%'))
+            </if>
+            <if test="entity.communityClass!=null  and entity.communityClass !='' ">
+              and   a.community_class  = #{entity.communityClass}
+            </if>
+            <if test="entity.userName!=null  and entity.userName !='' ">
+              and   a.user_name like concat(concat('%',#{entity.userName},'%'))
+            </if>
+            <if test="entity.userPhone!=null  and entity.userPhone !='' ">
+              and   a.user_phone like concat(concat('%',#{entity.userPhone},'%'))
+            </if>
+            <if test="entity.userId !=null  and entity.userId !='' ">
+                and a.user_id  = #{entity.userId}
+            </if>
+            <if test="entity.volunteersClass !=null  and entity.volunteersClass !='' ">
+                and a.volunteers_class = #{entity.volunteersClass}
+            </if>
+
+              and  a.enable = 1
+        </where>
+
+        order by us.remaining_points desc
+    </select>
+
+
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT count(1) from volunteers_reports a
+        LEFT JOIN all_user b  on a.user_id = b.id
+        WHERE a.enable = 1
+        and a.user_id is not null
+        and a.volunteers_class = #{id}
+    </select>
+
+
+    <select id="getAllById" resultType="map">
+        SELECT a.create_time,b.nickname,b.avatar,a.user_name from volunteers_reports a
+        LEFT JOIN all_user b  on a.user_id = b.id
+        WHERE a.enable = 1
+        and a.user_id is not null
+        and a.volunteers_class = #{id}
+    </select>
+
+
+    <select id="isBrigadeClass" resultType="java.lang.Integer">
+        select count(1) from volunteers_reports
+        where  enable =1  and user_id = #{uid}
+        and brigade_class like concat(concat('%',#{bid},'%'))
+    </select>
+
+    <select id="getEntityByUser" resultType="cn.px.sys.modular.volunteersReports.entity.VolunteersReportsEntity">
+        select * from volunteers_reports where user_id = #{userId}
+    </select>
+
+
+</mapper>

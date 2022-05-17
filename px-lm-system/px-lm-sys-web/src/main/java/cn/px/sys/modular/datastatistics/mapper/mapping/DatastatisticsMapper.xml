@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.datastatistics.mapper.DatastatisticsMapper">
+
+
+    <!--角色占比-->
+    <select id="typeCount" resultType="map">
+        SELECT
+        (case type
+        	when '1' then '志愿者'
+        	when '2' then '党员干部'
+        	when '3' then '单位'
+        	ELSE '未知' end
+        )as type ,
+        count(1) as num  from all_user
+        WHERE enable = 1 and type is not null
+        GROUP BY type
+    </select>
+
+
+    <!--网格占比-->
+    <select id="gridClassCount" resultType="map">
+        SELECT a.*,g.name from (
+    SELECT grid_class,count(1) as num  from all_user
+   WHERE `enable`= 1 and grid_class is not null
+   GROUP BY grid_class
+  ) a LEFT JOIN grid_class g on a.grid_class = g.id
+    </select>
+
+
+    <!--认领列表-->
+    <select id="claim" resultType="map">
+        SELECT
+	list.* , au.nickname
+        FROM
+	(
+SELECT
+	a.user_id,
+	ab.id,
+	ab.name,
+	a.create_time as createTime,
+	'活动' as type
+FROM
+	activity_user_sign a
+	LEFT JOIN activity ab ON a.activity_id = ab.id
+WHERE
+	a.ENABLE = 1 UNION ALL
+SELECT
+	b.user_id,
+	ba.id,
+	ba.name ,
+	b.create_time as createTime,
+	'项目' as type
+FROM
+	project_user_sign b
+	LEFT JOIN project ba ON b.project_id = ba.id
+WHERE
+	b.ENABLE = 1
+	) list LEFT JOIN all_user au on list.user_id = au.id
+	ORDER BY list.createTime desc
+	LIMIT 100
+    </select>
+
+    <!--近5天的活动项目数-->
+    <select id="selectFiveCount" resultType="map">
+		SELECT
+	*
+FROM
+	(
+	SELECT
+		a.click_date,
+		ifnull( b.count, 0 ) AS count,
+		"项目" AS type
+	FROM
+		(
+		SELECT
+			curdate( ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 1 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 2 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 3 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 4 DAY ) AS click_date
+		) a
+		LEFT JOIN (
+		SELECT
+			date( create_time ) AS datetime,
+			count( 1 ) AS count
+		FROM
+			project
+		WHERE
+			ENABLE = 1
+		GROUP BY
+			date( create_time )
+		) b ON a.click_date = b.datetime UNION ALL
+	SELECT
+		a.click_date,
+		ifnull( b.count, 0 ) AS count,
+		"活动" AS type
+	FROM
+		(
+		SELECT
+			curdate( ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 1 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 2 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 3 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 4 DAY ) AS click_date
+		) a
+		LEFT JOIN (
+		SELECT
+			date( create_time ) AS datetime,
+			count( 1 ) AS count
+		FROM
+			activity
+		WHERE
+			ENABLE = 1
+		GROUP BY
+			date( create_time )
+		) b ON a.click_date = b.datetime
+	) list
+ORDER BY
+	click_date
+	</select>
+
+
+    <select id="reportData" resultType="map">
+		SELECT
+	*
+FROM
+	(
+	SELECT
+		a.click_date,
+		ifnull( b.count, 0 ) AS count,
+		"党员干部报到数"  as type
+	FROM
+		(
+		SELECT
+			curdate( ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 1 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 2 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 3 DAY )
+		) a
+		LEFT JOIN (
+		SELECT
+			date( create_time ) AS datetime,
+			count( * ) AS count
+		FROM
+			cadres_reports
+		WHERE
+			ENABLE = 1
+			AND type = 1
+		GROUP BY
+			date( create_time )
+		) b ON a.click_date = b.datetime UNION ALL
+	SELECT
+		a.click_date,
+		ifnull( b.count, 0 ) AS count,
+		"单位报到数"  as type
+	FROM
+		(
+		SELECT
+			curdate( ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 1 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 2 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 3 DAY )
+		) a
+		LEFT JOIN (
+		SELECT
+			date( create_time ) AS datetime,
+			count( * ) AS count
+		FROM
+			unit_reports
+		WHERE
+			ENABLE = 1
+		GROUP BY
+			date( create_time )
+		) b ON a.click_date = b.datetime UNION ALL
+	SELECT
+		a.click_date,
+		ifnull( b.count, 0 ) AS count,
+		"志愿者报到数"  as type
+	FROM
+		(
+		SELECT
+			curdate( ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 1 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 2 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 3 DAY )
+		) a
+		LEFT JOIN (
+		SELECT
+			date( create_time ) AS datetime,
+			count( * ) AS count
+		FROM
+			volunteers_reports
+		WHERE
+			ENABLE = 1
+		GROUP BY
+			date( create_time )
+		) b ON a.click_date = b.datetime
+	) list
+ORDER BY
+	click_date
+	</select>
+
+    <!--需求列表-->
+    <select id="demand" resultType="map">
+		select
+		name,
+		(case type
+		 	when '1' then '需求'
+		 	when  '2' then  '微心愿'
+		 else  '未知' end
+		) as type,
+		create_time from demand
+		where  enable = 1
+		order by create_time
+	</select>
+
+
+    <select id="brigadeData" resultType="map">
+
+		SELECT
+	b.name,
+	IFNULL( a.num, 0 ) AS num
+FROM
+	brigade_class b
+	LEFT JOIN (
+	SELECT
+		a.*,
+		count( 1 ) AS num
+	FROM
+		(
+		SELECT
+			a.id,
+			b.brigade_class,
+			a.name
+		FROM
+			brigade_class a,
+			cadres_reports b
+		WHERE
+			FIND_IN_SET( a.id, b.brigade_class )
+			AND b.ENABLE = 1
+			AND b.type = 1 UNION ALL
+		SELECT
+			a.id,
+			b.brigade_class,
+			a.name
+		FROM
+			brigade_class a,
+			volunteers_reports b
+		WHERE
+			FIND_IN_SET( a.id, b.brigade_class )
+			AND b.ENABLE = 1
+		) a
+	GROUP BY
+		a.id
+	) a ON a.id = b.id
+WHERE
+	b.ENABLE = 1
+ORDER BY
+	num DESC
+
+
+	</select>
+
+
+    <select id="browse" resultType="map">
+			SELECT
+		a.click_date,
+		ifnull( b.count, 0 ) AS count
+	FROM
+		(
+		SELECT
+			curdate( ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 1 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 2 DAY ) AS click_date UNION ALL
+		SELECT
+			date_sub( curdate( ), INTERVAL 3 DAY )
+		) a
+		LEFT JOIN (
+		SELECT
+			date( create_time ) AS datetime,
+			count( * ) AS count
+		FROM
+			visit_count
+		WHERE
+			ENABLE = 1
+		GROUP BY
+			date( create_time )
+			) b ON a.click_date = b.datetime
+
+		order by click_date
+
+	</select>
+
+
+</mapper>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.cadresReports.mapper.CadresReportsMapper">
+
+    <resultMap type="cn.px.sys.modular.cadresReports.entity.CadresReportsEntity" id="CadresReportsMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="enable" column="enable" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="OTHER"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="userSex" column="user_sex" jdbcType="VARCHAR"/>
+        <result property="userIdcard" column="user_idcard" jdbcType="VARCHAR"/>
+        <result property="userPhone" column="user_phone" jdbcType="VARCHAR"/>
+        <result property="communityClass" column="community_class" jdbcType="VARCHAR"/>
+        <result property="firstId" column="first_id" jdbcType="INTEGER"/>
+        <result property="secondId" column="second_id" jdbcType="INTEGER"/>
+        <result property="brigadeClass" column="brigade_class" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="isMember" column="is_member" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="selectCadresReportsVo">
+        select id, enable,
+        is_member,
+        create_by, user_id,create_time, update_by, update_time, remark, sort, user_name, user_sex, user_idcard, user_phone, community_class, first_id, second_id, brigade_class, type from cadres_reports
+    </sql>
+
+    <select id="selectIdPage" resultType="java.lang.Long">
+        SELECT id FROM cadres_reports
+        <where>
+            enable = 1
+            <if test="cm.id != null">
+                and id = #{cm.id}
+            </if>
+            <if test="cm.enable != null">
+                and enable = #{cm.enable}
+            </if>
+            <if test="cm.createBy != null">
+                and create_by = #{cm.createBy}
+            </if>
+            <if test="cm.createTime != null">
+                and create_time = #{cm.createTime}
+            </if>
+            <if test="cm.updateBy != null">
+                and update_by = #{cm.updateBy}
+            </if>
+            <if test="cm.updateTime != null">
+                and update_time = #{cm.updateTime}
+            </if>
+            <if test="cm.remark != null">
+                and remark = #{cm.remark}
+            </if>
+            <if test="cm.sort != null">
+                and sort = #{cm.sort}
+            </if>
+            <if test="cm.userName != null and cm.userName != ''">
+                and user_name = #{cm.userName}
+            </if>
+            <if test="cm.userSex != null and cm.userSex != ''">
+                and user_sex = #{cm.userSex}
+            </if>
+            <if test="cm.userIdcard != null and cm.userIdcard != ''">
+                and user_idcard = #{cm.userIdcard}
+            </if>
+            <if test="cm.userPhone != null and cm.userPhone != ''">
+                and user_phone = #{cm.userPhone}
+            </if>
+            <if test="cm.communityClass != null and cm.communityClass != ''">
+                and community_class = #{cm.communityClass}
+            </if>
+            <if test="cm.firstId != null">
+                and first_id = #{cm.firstId}
+            </if>
+            <if test="cm.secondId != null">
+                and second_id = #{cm.secondId}
+            </if>
+            <if test="cm.brigadeClass != null and cm.brigadeClass != ''">
+                and brigade_class = #{cm.brigadeClass}
+            </if>
+            <if test="cm.type != null">
+                and type = #{cm.type}
+            </if>
+            <if test="cm.userId != null">
+                and user_id = #{cm.userId}
+            </if>
+            <if test="cm.isMember != null">
+                and is_member = #{cm.isMember}
+            </if>
+
+        </where>
+    </select>
+
+
+    <select id="selectListPage" resultType="map">
+        SELECT
+        a.*,
+        b.name as firstName,
+        c.name as secondName ,
+        d.name as cName ,
+        us.remaining_points as integral,
+        us.grid_class as gridClass
+        from cadres_reports a
+        LEFT JOIN unit_first_class b on a.first_id = b.id
+        LEFT JOIN unit_second_class c on a.second_id = c.id
+        LEFT JOIN community_class d on a.community_class = d.id
+        left join all_user us on a.user_id = us.id
+        <where>
+            <if test="entity.userName !=null  and entity.userName!='' ">
+                and a.user_name like  concat(concat('%',#{entity.userName},'%'))
+            </if>
+            <if test="entity.brigadeClass !=null and entity.brigadeClass!='' ">
+                and a.brigade_class like  concat(concat('%',#{entity.brigadeClass},'%'))
+            </if>
+            <if test="entity.userPhone !=null  and entity.userPhone!='' ">
+                and a.user_phone like  concat(concat('%',#{entity.userPhone},'%'))
+            </if>
+            <if test="entity.communityClass !=null  and entity.communityClass!=''">
+                and a.community_class  =  #{entity.communityClass}
+            </if>
+            <if test="entity.userId !=null and entity.userId!='' ">
+                and a.user_id  = #{entity.userId}
+            </if>
+
+            <if test="entity.secondId !=null and entity.secondId!='' ">
+                and a.second_id  = #{entity.secondId}
+            </if>
+
+            and a.enable = 1 and a.type !=3
+        </where>
+
+        order by us.remaining_points desc
+    </select>
+
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT count(1) from cadres_reports  a
+        LEFT JOIN all_user c on a.user_id = c.id
+        WHERE
+         a.`enable` = 1
+        and a.type = 1
+        and a.user_id is not null
+    </select>
+
+    <select id="getAllById" resultType="map">
+        SELECT a.user_name,a.create_time,c.nickname,c.avatar from cadres_reports  a
+        LEFT JOIN all_user c on a.user_id = c.id
+        WHERE
+         a.`enable` = 1
+        and a.type = 1
+        and a.user_id is not null
+        order by  a.create_time desc
+    </select>
+
+    <select id="isBrigadeClass" resultType="java.lang.Integer">
+        select count(1) from cadres_reports
+        where enable =1 and user_id = #{uid}
+        and brigade_class like concat(concat('%',#{bid},'%'))
+
+    </select>
+
+    <select id="getEntityByUser" resultType="cn.px.sys.modular.cadresReports.entity.CadresReportsEntity">
+        select  * from cadres_reports where enable = 1 and user_id = #{userId}
+    </select>
+
+    <select id="getCountByall" resultType="int">
+        select count(1) from cadres_reports where enable=1 and type=1
+    </select>
+
+
+</mapper>

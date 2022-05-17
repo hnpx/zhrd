@@ -1,0 +1,118 @@
+server:
+  port: 10012
+  max-http-header-size: 102400
+beetl:
+  resource-auto-check: true         #热加载beetl模板，开发时候用
+
+spring:
+  mvc:
+    view:
+      prefix: /pages
+  servlet:
+    multipart:
+      max-request-size: 1000MB
+      max-file-size: 1000MB
+  jta:
+    atomikos:
+      properties:
+        max-actives: -1
+    log-dir: transaction-logs/admin
+  main:
+    allow-bean-definition-overriding: true
+  cache:
+    type: redis
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/zhrd?autoReconnect=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&serverTimezone=CTT
+    username: zhrd
+    password: zhrd
+    filters: wall,mergeStat
+
+    # 连接池大小根据实际情况调整
+    max-active: 500
+    max-pool-prepared-statement-per-connection-size: 20
+redis:
+  database: 0
+  enableTransaction: true
+  maxWaitMillis: 3000
+  cluster:
+    nodes:
+    max-redirects: 3
+  minIdle: 10
+  cache:
+    enableTransaction: true
+    ttl: 60
+  commandTimeout: 60000
+  timeout: 120000
+  master:
+  slave:
+  password: 
+  maxIdle: 10
+  testOnBorrow: true
+  port: 6379
+  maxTotal: 1000
+  host: 127.0.0.1
+  shutdownTimeout: 5000
+  expiration: 600
+
+
+mybatis-plus:
+  mapper-locations: classpath*:cn/px/**/mapping/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    lazy-loading-enabled: true
+    multiple-result-sets-enabled: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    banner: false
+    db-config:
+      id-type: assign_id
+      table-underline: true
+      #logic-delete-field: enable  #全局逻辑删除字段值
+      # logic-delete-value: 2
+      # logic-not-delete-value: 1
+log:
+  path: _app_logs
+export:
+  baseDir: D:/export/
+  cron: '0 0 1 * * ?'#'0/59 * * * * ?'  #'0 0 1 * * ?'
+#debug: true
+sftp:
+  host: 127.0.0.1
+  port: 22
+  username: mysftp
+  password:
+  timeout: 5000
+  aliveMax: 10
+  baseDir: /upload
+  rootDir: live-file
+  tempDir: E:/wish
+  url: http://pic.cn/
+  enable: true
+
+wx:
+  live:
+    configs:
+      - appid: ${wx.appid} #微信小程序的appid
+        secret: ${wx.secret}  #微信小程序的Secret
+        token: #微信小程序消息服务器配置的token
+        aesKey: #微信小程序消息服务器配置的EncodingAESKey
+        msgDataFormat: JSON
+
+
+aliyun:
+  accessKeyId:
+  accessKeySecret:
+  signName: 品讯科技
+  regionId: cn-hangzhou
+
+tencent:
+  trtc:
+    secret-id:
+    secret-key:
+    secret-appid:
+    app-id:
+    region: "ap-guangzhou"
+video-file:
+  overdue-day: 7

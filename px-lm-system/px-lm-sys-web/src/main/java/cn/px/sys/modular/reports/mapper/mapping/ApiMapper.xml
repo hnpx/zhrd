@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.reports.mapper.ApiMapper">
+
+
+    <select id="getNews" resultType="cn.px.sys.modular.news.entity.News">
+        select * from news
+        where enable = 1
+        order by create_time desc
+    </select>
+
+
+
+    <select id="selectUserSign" resultType="map">
+
+        SELECT * from (
+            SELECT a.user_id,ab.id,ab.name from activity_user_sign  a
+            LEFT JOIN activity ab on a.activity_id = ab.id
+            WHERE  a.enable= 1 and ab.enable = 1
+        union all
+            SELECT b.user_id,ba.id,ba.name from project_user_sign 	b
+            LEFT JOIN project ba on b.project_id = ba.id
+            WHERE  b.enable = 1 and ba.enable = 1
+            ) list
+            <where>
+                <if test="id !=null">
+                    and user_id = #{id}
+                </if>
+            </where>
+
+    </select>
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.px.sys.modular.peopleAppTime.mapper.PeopleAppTimeMapper">
+    <resultMap type="cn.px.sys.modular.peopleAppTime.entity.PeopleAppTimeEntity" id="PeopleAppTimeMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="enable" column="enable" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="peopleCongress" column="people_congress" jdbcType="INTEGER"/>
+        <result property="appointmentTime" column="appointment_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="selectPeopleAppTimeVo">
+        select id,
+               enable,
+               create_by,
+               create_time as "createTime",
+               update_by,
+               update_time,
+               remark,
+               sort,
+               people_congress as "peopleCongress",
+               appointment_time as "appointmentTime"
+        from people_app_time
+    </sql>
+
+    <select id="selectIdPage" resultType="java.lang.Long">
+        SELECT id FROM people_app_time
+        <where>
+            enable = 1
+            <if test="cm.id != null">
+                and id = #{cm.id}
+            </if>
+            <if test="cm.enable != null">
+                and enable = #{cm.enable}
+            </if>
+            <if test="cm.createBy != null">
+                and create_by = #{cm.createBy}
+            </if>
+            <if test="cm.createTime != null">
+                and create_time = #{cm.createTime}
+            </if>
+            <if test="cm.updateBy != null">
+                and update_by = #{cm.updateBy}
+            </if>
+            <if test="cm.updateTime != null">
+                and update_time = #{cm.updateTime}
+            </if>
+            <if test="cm.remark != null">
+                and remark = #{cm.remark}
+            </if>
+            <if test="cm.sort != null">
+                and sort = #{cm.sort}
+            </if>
+            <if test="cm.peopleCongress != null">
+                and people_congress = #{cm.peopleCongress}
+            </if>
+            <if test="cm.appointmentTime != null">
+                and appointment_time = #{cm.appointmentTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="getToday" resultType="cn.px.sys.modular.peopleAppTime.entity.PeopleAppTimeEntity">
+        <include refid="selectPeopleAppTimeVo"/>
+       where enable=1 and appointment_time BETWEEN #{startTime} and #{endTime} and type = 2
+    </select>
+
+    <select id="getNext" resultType="cn.px.sys.modular.peopleAppTime.entity.PeopleAppTimeEntity">
+        <include refid="selectPeopleAppTimeVo"/>
+        where enable=1 and type=2 and appointment_time > #{startTime} order by appointment_time asc limit 0,1
+    </select>
+
+    <select id="getRecord" resultType="map">
+        <include refid="selectPeopleAppTimeVo"/>
+        where enable=1  and type=2 and appointment_time &lt;= #{startTime}
+        ORDER BY appointment_time DESC
+    </select>
+
+    <select id="getMonth" resultType="cn.px.sys.modular.peopleAppTime.entity.PeopleAppTimeEntity">
+        <include refid="selectPeopleAppTimeVo"/>
+        where enable=1 and appointment_time BETWEEN #{startTime} and #{endTime} and type = 2
+    </select>
+
+    <select id="getCountByappTime" resultType="int">
+        select count(1) from people_app_time where enable=1 and appointment_time=#{date}
+    </select>
+
+    <select id="getObjectByappTime" resultType="cn.px.sys.modular.peopleAppTime.entity.PeopleAppTimeEntity">
+        <include refid="selectPeopleAppTimeVo"/>
+        where enable=1 and appointment_time=#{date}  and type = 2
+    </select>
+
+
+    <select id="getListByCongress" resultType="cn.px.sys.modular.peopleAppTime.entity.PeopleAppTimeEntity">
+        <include refid="selectPeopleAppTimeVo"/>
+        where enable=1 and type =1 and  people_congress = #{congress} and appointment_time > #{date}
+    </select>
+</mapper>
+
